@@ -1,0 +1,44 @@
+def rebalance_portfolio(returns, index_weights, shift_size, chunk_size):
+    """
+    Get weights for each rebalancing of the portfolio.
+
+    Parameters
+    ----------
+    returns : DataFrame
+        Returns for each ticker and date
+    index_weights : DataFrame
+        Index weight for each ticker and date
+    shift_size : int
+        The number of days between each rebalance
+    chunk_size : int
+        The number of days to look in the past for rebalancing
+
+    Returns
+    -------
+    all_rebalance_weights  : list of Ndarrays
+        The ETF weights for each point they are rebalanced
+    """
+    assert returns.index.equals(index_weights.index)
+    assert returns.columns.equals(index_weights.columns)
+    assert shift_size > 0
+    assert chunk_size >= 0
+    
+    #TODO: Implement function
+    n_days = returns.shape[0]
+    all_rebalance_weights = []
+    
+    for index in range(shift_size, n_days, shift_size):
+        start_index = index - chunk_size
+        if start_index < 0:
+            continue
+            
+        period_returns = returns[start_index:index]
+        period_index_weights = index_weights.iloc[index - 1]
+        
+        cov_returns = get_covariance_returns(period_returns)
+        optimal_weights = get_optimal_weights(cov_returns, period_index_weights)
+        all_rebalance_weights.append(optimal_weights)
+        
+    return all_rebalance_weights
+
+project_tests.test_rebalance_portfolio(rebalance_portfolio)
